@@ -16,6 +16,7 @@ import {
   faExternalLinkAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Modal } from '@freecodecamp/react-bootstrap';
 import React, { Component, Fragment, createRef, Ref } from 'react';
 import { TFunction, withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
@@ -56,12 +57,18 @@ const mapDispatchToProps = {
   toggleNightMode: (theme: Themes) => updateUserFlag({ theme })
 };
 
-export class NavLinks extends Component<NavLinksProps, {}> {
+interface NavLinksState {
+  showModal: boolean;
+}
+
+export class NavLinks extends Component<NavLinksProps, NavLinksState> {
   static displayName: string;
   langButtonRef: React.RefObject<HTMLButtonElement>;
   firstLangOptionRef: React.RefObject<HTMLElement>;
   lastLangOptionRef: React.RefObject<HTMLElement>;
-
+  state = {
+    signoutModalState: false
+  };
   constructor(props: NavLinksProps) {
     super(props);
     this.langButtonRef = createRef();
@@ -74,6 +81,7 @@ export class NavLinks extends Component<NavLinksProps, {}> {
       this.handleLanguageButtonKeyDown.bind(this);
     this.handleMenuKeyDown = this.handleMenuKeyDown.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
+    this.handleModalClose = this.handleModalClose.bind(this);
   }
 
   toggleTheme(currentTheme = Themes.Default, toggleNightMode: any) {
@@ -241,6 +249,12 @@ export class NavLinks extends Component<NavLinksProps, {}> {
     ) {
       hideMenu();
     }
+  };
+
+  handleModalClose = (): void => {
+    this.setState({
+      signoutModalState: !this.state.signoutModalState
+    });
   };
 
   render() {
@@ -454,15 +468,32 @@ export class NavLinks extends Component<NavLinksProps, {}> {
         {username && (
           <Fragment key='signout-frag'>
             <li className='nav-line' key='sign-out'>
+              <button
+                className='nav-link nav-link-signout'
+                // href={`${apiLocation}/signout`}
+                onBlur={this.handleBlur}
+                onKeyDown={this.handleMenuKeyDown}
+                onClick={this.handleModalClose}
+              >
+                {t('buttons.sign-out')}
+              </button>
+            </li>
+
+            <Modal
+              show={this.state.signoutModalState}
+              onHide={this.handleModalClose}
+            >
+              <Modal.Header closeButton={this.state.signoutModalState}>
+                Modal Header
+              </Modal.Header>
               <a
                 className='nav-link nav-link-signout'
                 href={`${apiLocation}/signout`}
-                onBlur={this.handleBlur}
-                onKeyDown={this.handleMenuKeyDown}
+                onClick={this.handleModalClose}
               >
-                {t('buttons.sign-out')}
+                Sign out
               </a>
-            </li>
+            </Modal>
           </Fragment>
         )}
       </ul>
